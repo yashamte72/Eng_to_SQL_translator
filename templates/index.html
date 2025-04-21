@@ -5,5 +5,34 @@
 </head>
 <body>
     <h1>English to SQL Translator</h1>
+
+    #Input box for english question
+    <textarea id = "input" rows="4" cols="60" placeholder="Enter your question here..."></textarea><br>
+
+    #button to submit the question
+    <button onclick="translate()">Translate</button><br>
+
+    //output box to show SQL query
+    <pre id="output"> </pre>
+
+    <script>
+        function translate() {
+            //get the input value
+            const input = document.getElementById("input").value;
+            //send the input to the server using fetch API
+            const responce = fetch("/translate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ question: input })
+            });
+
+            const data =  responce.json();
+            document.getElementById("output").innerText = data.query;
+        }
+    </script>
+
+
 </body>
 </html>
