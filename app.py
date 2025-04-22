@@ -1,41 +1,35 @@
+from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
-from dotenv import load_dotenv
-import os
 
-# 1. Load from .env
-load_dotenv()  
+# Initialize the OpenAI client
+client = OpenAI(
+    api_key=""  # Replace with your actual key
+)
 
-# 2. Get key safely
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    raise ValueError("API key missing! Create .env file")
+# Create Flask app
+app = Flask(__name__)
 
-# 3. Initialize client
-client = OpenAI(api_key=api_key)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-def chatbot():
-    print("✨ AI: Hello! Type 'exit' to end.")
-    messages = [{"role": "system", "content": "You're a helpful AI."}]
+@app.route('/translate', methods=['POST'])
+def translate():
+    data = request.get_json()
+    english_input = data.get("question")
 
-    try:
-        while True:
-            user_input = input("You: ")
-            if user_input.lower() in ["exit", "quit"]:
-                print("✨ AI: Goodbye!")
-                break
+    # Send request to GPT model
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",  # You can also use gpt-4 or gpt-3.5-turbo
+        messages=[
+            {"role": "system", "content": "Translate natural language to SQL."},
+            {"role": "user", "content": english_input}
+        ]
+    )
 
-            messages.append({"role": "user", "content": user_input})
-            
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",  # Note: "turbo" not "turbo"
-                messages=messages,
-                temperature=0.7
-            )
-            
-            print(f"✨ AI: {response.choices[0].message.content}")
-            
-    except Exception as e:
-        print(f"⚠️ Error: {str(e)}")
+    # Extract and return SQL query
+    sql = completion.choices[0].message.content.strip()
+    return jsonify({"sql": sql})
 
 if __name__ == "__main__":
-    chatbot()
+    app.run(debug=True)
