@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 client = OpenAI(
-  api_key="syour api key here"
+  api_key=""
 )
 
 print("Chat with GPT-4o Mini. Type 'exit' to quit.\n")
