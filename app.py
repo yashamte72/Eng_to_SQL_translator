@@ -3,7 +3,7 @@ from openai import OpenAI
 
 # Initialize the OpenAI client
 client = OpenAI(
-    api_key=""  # Replace with your actual key
+    api_key="your api key here"  # Replace with your actual key
 )
 
 # Create Flask app
