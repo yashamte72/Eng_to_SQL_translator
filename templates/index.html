@@ -4,40 +4,170 @@
     <meta charset="UTF-8">
     <title>English to SQL Translator</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        textarea { width: 100%; padding: 10px; font-size: 1rem; }
-        button { margin-top: 10px; padding: 10px 20px; font-size: 1rem; }
-        pre { background-color: #f0f0f0; padding: 10px; margin-top: 20px; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #b389f3, #62d3f7);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 90%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea, input {
+            font-size: 1rem;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            resize: vertical;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #3730a3;
+        }
+
+        pre {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 20px;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            font-family: Consolas, monospace;
+        }
+
+        .divider {
+            font-size: 24px;
+            text-align: center;
+            color: #888;
+        }
+
+        .note {
+            font-size: 0.85rem;
+            color: #555;
+        }
+                /* Add these inside <style> */
+        .uppercase {
+            color: #1e40af; /* shiny dark blue */
+            font-weight: bold;
+        }
+
+        .single-quote {
+            color: #ec4899; /* shiny pink */
+        }
+
+        .logo-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .logo-bar img {
+            height: 40px;
+            width: auto;
+        }
+
+    </style>
     </style>
 </head>
 <body>
-    <h2>English to SQL Translator</h2>
-    <textarea id="input" rows="4" placeholder="Type your English question here..."></textarea><br>
-    <button id="translateBtn">Translate</button>
-    <pre id="output"></pre>
+    
+    <div class="container">
+        <div class="section">
+                   <!-- LOGO BAR -->
+            <div class="logo-bar">
+                <img src="{{ url_for('static', filename='github-logo.png') }}" alt="">
+                <img src="{{ url_for('static', filename='twitter.png') }}" alt="">
+            </div>
+            <label for="input"><strong>Human Language</strong></label>
+            <textarea id="input" placeholder="e.g. Show me all cars that are red"></textarea>
+            <label class="note">Table Schema Input (Optional)</label>
+            <textarea placeholder="e.g. CREATE TABLE cars (id INT, make TEXT, model TEXT, year INT, color TEXT)"></textarea>
+            <button id="translateBtn">Generate SQL</button>
+        </div>
+        <div class="divider">⇄</div>
+        <div class="section">
+            <label><strong>SQL</strong></label>
+            <pre id="output">Your SQL query will appear here...</pre>
+        </div>
+    </div>
 
     <!-- It's safer to run JS *after* the page is fully loaded -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("translateBtn").addEventListener("click", async function () {
-                const inputText = document.getElementById("input").value;
+    const inputBox = document.getElementById("input");
+    const outputBox = document.getElementById("output");
 
-                try {
-                    const response = await fetch("/translate", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ question: inputText })
-                    });
+    async function translateText() {
+        const inputText = inputBox.value;
 
-                    const data = await response.json();
-                    document.getElementById("output").innerText = data.sql;
-                } catch (err) {
-                    document.getElementById("output").innerText = "Something went wrong: " + err;
-                }
+        try {
+            const response = await fetch("/translate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ question: inputText })
             });
-        });
+
+            const data = await response.json();
+            // Highlight UPPERCASE and 'quoted' words
+            let highlightedSQL = data.sql
+                .replace(/\b([A-Z_]{2,})\b/g, '<span class="uppercase">$1</span>')  // UPPERCASE
+                .replace(/'([^']+)'/g, "<span class='single-quote'>'$1'</span>");  // 'quoted'
+
+            outputBox.innerHTML = highlightedSQL;
+        } catch (err) {
+            outputBox.innerText = "Something went wrong: " + err;
+        }
+    }
+
+    document.getElementById("translateBtn").addEventListener("click", translateText);
+
+    // New: trigger translate on Enter key
+    inputBox.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault(); // prevent new line
+            translateText();
+        }
+    });
+});
+
     </script>
 </body>
 </html>
