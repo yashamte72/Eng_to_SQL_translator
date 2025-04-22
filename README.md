@@ -3,8 +3,7 @@
 
 A simple web app that uses OpenAI's GPT model to translate natural language (English) queries into SQL queries.
 
-![screenshot](\Eng_to_SQL_translator\Screenshot 2025-04-22 090638.png)
-
+![Image](https://github.com/user-attachments/assets/45ae4c69-099f-43d2-afde-ee9b0eaa070c)
 ---
 
 ## 🚀 Features
