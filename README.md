@@ -54,7 +54,7 @@ client = OpenAI(
 
 1. Clone the repo:
 
-   git clone https://github.com/your-username/Eng_to_SQL_translator.git
+   git clone https://github.com/yashamte72/Eng_to_SQL_translator.git
    cd Eng_to_SQL_translator
 
 2. Install dependencies:
